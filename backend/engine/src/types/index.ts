@@ -1,0 +1,2 @@
+export const TRADE_ADDED = "TRADE_ADDED";
+export const ORDER_UPDATED = "ORDER_UPDATED";

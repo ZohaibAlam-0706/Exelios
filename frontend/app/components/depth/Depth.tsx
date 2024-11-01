@@ -76,11 +76,12 @@ export function Depth({ market, currPrice, setCurrPrice }: { market: string, cur
         SignalingManager.getInstance().registerCallback("depth", updateData, `DEPTH-${market}`);
         SignalingManager.getInstance().registerCallback("trade", updateTrades,`TRADES-${market}`);
 
-        SignalingManager.getInstance().sendMessage({ "method": "SUBSCRIBE", "params": [`depth.${market}`] });
-        SignalingManager.getInstance().sendMessage({ "method":"SUBSCRIBE","params":["trade.SOL_USDC"],"id":1 });
+        SignalingManager.getInstance().sendMessage({ "method": "SUBSCRIBE", "params": [`depth.${market}`], "id":6 });
+        SignalingManager.getInstance().sendMessage({ "method":"SUBSCRIBE","params":["trade.SOL_USDC"],"id":7 });
 
         getDepth(market).then(d => {    
             setBids(d.bids.reverse());
+            
             setAsks(d.asks);
             scrollToCenter();
         });
@@ -91,9 +92,9 @@ export function Depth({ market, currPrice, setCurrPrice }: { market: string, cur
         });
 
         return () => {
-            SignalingManager.getInstance().sendMessage({ "method": "UNSUBSCRIBE", "params": [`depth.200ms.${market}`] });
+            SignalingManager.getInstance().sendMessage({ "method": "UNSUBSCRIBE", "params": [`depth.200ms.${market}`],"id":9 });
             SignalingManager.getInstance().deRegisterCallback("depth", `DEPTH-${market}`);
-            SignalingManager.getInstance().sendMessage({"method":"UNSUBSCRIBE","params":["trade.SOL_USDC"],"id":1 });
+            SignalingManager.getInstance().sendMessage({"method":"UNSUBSCRIBE","params":["trade.SOL_USDC"],"id":8 });
             SignalingManager.getInstance().deRegisterCallback("trade", `TRADES-${market}`);
         };
     }, [market]);

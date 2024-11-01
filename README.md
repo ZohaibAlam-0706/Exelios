@@ -2,10 +2,13 @@
 
 An Exchange project 
 
+<h1 style="font-size: 30px; color: red">Architecture</h1>
+![Architecture](https://drive.google.com/file/d/1HlP3L5UlsKuJ0CEySQju2KKn2SbAwy-f/view?usp=sharing)
 ## Running locally
 
 > [!Note]
 > This uses npm as package manager 
+> You Should have docker-compose installed and online in your system
 
 1. Clone the repository:
 
@@ -18,36 +21,70 @@ git clone https://github.com/ZohaibAlam-0706/Exelios.git
 ```bash
 cd Exelios
 ```
-#Instant Docker Setup
-> [!Note]
-> Your Docker Deamon Should be Online
 
-# Traditional Docker Setup
-
-(Optional) Start a PostgreSQL database using Docker:
+3. Running the frontend first
 
 ```bash
-docker run -d \
-
---name exelios-db \
-
--e POSTGRES_USER=myuser  \
-
--e POSTGRES_PASSWORD=mypassword \
-
--e  POSTGRES_DB=mydatabase  \
-
--p 5432:5432 \
-
-postgres
+cd frontend && npm install
+npm run dev
 ```
 
-1. Create a .env file:
-    - Copy `.env.example` and rename it to `.env`.
 
-2. Run the Docker Command to start the Project Locally:
+4. Running the backend
+
+> [!Note]
+> Backend contains several services. So will have to run them seperately in each terminal
+    
+In another terminal navigate to the backend directory
+
 ```bash
-docker run `putCommand` -p 3000:3000 -p 5000:5000
+cd backend
+```
+
+Now run each service separately
+
+In 2nd terminal run:
+```bash
+cd docker 
+docker-compose up
+```
+This will start Database and redis locally for you
+
+In 3rd terminal run:
+```bash
+cd api 
+npm install
+npm run dev
+```
+
+
+In 4th terminal run:
+```bash
+cd db
+npm install
+npm run seed:db
+npm run dev
+```
+
+In 5th terminal run:
+```bash
+cd engine
+npm install
+npm run dev
+```
+
+In 6th terminal run:
+```bash
+cd ws
+npm install
+npm run dev
+```
+
+In 7th terminal run:
+```bash
+cd marketMaker
+npm install
+npm run dev
 ```
 
 ##Usage
