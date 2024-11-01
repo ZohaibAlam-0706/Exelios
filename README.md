@@ -3,7 +3,7 @@
 An Exchange project 
 
 <h1 style="font-size: 30px; color: red">Architecture</h1>
-![My Image](https://github.com/ZohaibAlam-0706/Exelios/blob/main/frontend/public/Exelios_Architecture.png?raw=true)
+![My Image](https://raw.githubusercontent.com/ZohaibAlam-0706/Exelios/refs/heads/main/frontend/public/Exelios_Architecture.png)
 
 ## Running locally
 
