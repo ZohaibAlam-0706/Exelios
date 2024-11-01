@@ -3,7 +3,8 @@
 An Exchange project 
 
 <h1 style="font-size: 30px; color: red">Architecture</h1>
-![Architecture](https://drive.google.com/file/d/1HlP3L5UlsKuJ0CEySQju2KKn2SbAwy-f/view?usp=sharing)
+![My Image](https://drive.google.com/uc?export=view&id=1HlP3L5UlsKuJ0CEySQju2KKn2SbAwy-f)
+
 ## Running locally
 
 > [!Note]
