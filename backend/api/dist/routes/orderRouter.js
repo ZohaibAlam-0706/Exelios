@@ -41,7 +41,8 @@ exports.orderRouter.delete('/', (req, res) => __awaiter(void 0, void 0, void 0, 
     res.json(response.payload);
 }));
 exports.orderRouter.get('/open', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, market } = req.body;
+    const userId = req.query.userId;
+    const market = req.query.market;
     const response = yield redisManager_1.RedisManager.getInstance().sendAndAwait({
         type: types_1.GET_OPEN_ORDERS,
         data: {

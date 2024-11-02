@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const client = new Client({
-    user: 'your_user',
-    host: 'localhost',
+    user: process.env.DB_USER || "your_user",
+    host: 'timescaledb',
     database: 'my_database',
     password: 'your_password',
     port: 5432,

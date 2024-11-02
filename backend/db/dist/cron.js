@@ -16,8 +16,8 @@ const pg_1 = require("pg");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const client = new pg_1.Client({
-    user: 'your_user',
-    host: 'localhost',
+    user: process.env.DB_USER || "your_user",
+    host: 'timescaledb',
     database: 'my_database',
     password: 'your_password',
     port: 5432,

@@ -1,22 +1,22 @@
 "use client";
-import { act, useState } from "react";
+import Image from "next/image";
+import React, { useState } from "react";
 
-export function SwapUI({ market, currPrice }: {market: string, currPrice: any}) {
-    const [amount, setAmount] = useState('');
+export function SwapUI({ market, currPrice }: {market: string, currPrice: number}) {
     const [activeTab, setActiveTab] = useState('buy');
     const [type, setType] = useState('limit');
     const [buyingQuantity, setBuyingQuantity] = useState(0.00);
     const [money, setMoney] = useState(0);
 
-    function calculate(e: any){
-        if(e.target.value == 0){
+    function calculate(e: React.ChangeEvent<HTMLInputElement>){
+        if(Number(e.target.value) == 0){
             setBuyingQuantity(0);
         }
-        if(e.target.value > 0){
-            setMoney(e.target.value);
+        if(Number(e.target.value) > 0){
+            setMoney(Number(e.target.value));
             setBuyingQuantity(money/currPrice);
         }else{
-            e.target.value = 0;
+            e.target.value = "0";
         }
     }
 
@@ -50,7 +50,7 @@ export function SwapUI({ market, currPrice }: {market: string, currPrice: any}) 
                                 <input onChange={calculate} step="0.01" placeholder="0" className="h-12 rounded-lg border-2 border-solid border-baseBorderLight bg-[var(--background)] pr-12 text-right text-2xl leading-9 text-[$text] placeholder-baseTextMedEmphasis ring-0 transition focus:border-accentBlue focus:ring-0" type="text" / >
                                 <div className="flex flex-row absolute right-1 top-1 p-2">
                                     <div className="relative">
-                                        <img src="/USDC.svg" className="w-6 h-6" />
+                                        <Image alt="USDC" src="/USDC.svg" className="w-6 h-6" unoptimized/>
                                     </div>
                                 </div>
                             </div>
@@ -65,7 +65,7 @@ export function SwapUI({ market, currPrice }: {market: string, currPrice: any}) 
                                 <input step="0.01" placeholder="0" className="h-12 rounded-lg border-2 border-solid border-baseBorderLight bg-[var(--background)] pr-12 text-right text-2xl leading-9 ring-0 transition focus:border-accentBlue focus:ring-0" type="text" />
                                 <div className="flex flex-row absolute right-1 top-1 p-2">
                                     <div className="relative">
-                                        <img src={`/${market}.svg`} className="w-4 h-4 mt-1" />
+                                        <Image alt={`${market}`} src={`/${market}.svg`} className="w-4 h-4 mt-1" unoptimized/>
                                     </div>
                                 </div>
                             </div>
@@ -113,7 +113,7 @@ export function SwapUI({ market, currPrice }: {market: string, currPrice: any}) 
 </div>
 }
 
-function LimitButton({ type, setType }: { type: string, setType: any }) {
+function LimitButton({ type, setType }: { type: string, setType: React.Dispatch<React.SetStateAction<string>> }) {
     return <div className="flex flex-col cursor-pointer justify-center py-2" onClick={() => setType('limit')}>
     <div className={`text-sm font-medium py-1 border-b-2 ${type === 'limit' ? "border-blue-500" : "border-transparent text-slate-400 hover:border-b-2 hover:border-white hover:text-white"}`}>
         Limit
@@ -121,7 +121,7 @@ function LimitButton({ type, setType }: { type: string, setType: any }) {
 </div>
 }
 
-function MarketButton({ type, setType }: { type: string, setType: any }) {
+function MarketButton({ type, setType }: { type: string, setType: React.Dispatch<React.SetStateAction<string>> }) {
     return  <div className="flex flex-col cursor-pointer justify-center py-2" onClick={() => setType('market')}>
     <div className={`text-sm font-medium py-1 border-b-2 ${type === 'market' ? "border-blue-500" : "hover:border-b-2 border-transparent text-slate-400 hover:border-white  hover:text-white"} `}>
         Market
@@ -129,7 +129,7 @@ function MarketButton({ type, setType }: { type: string, setType: any }) {
     </div>
 }
 
-function BuyButton({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: any }) {
+function BuyButton({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
     return <div className={`flex flex-col mb-[-2px] flex-1 cursor-pointer justify-center border-b-2 p-4 ${activeTab === 'buy' ? 'border-b-green-400 bg-green-400 bg-opacity-10' : 'border-b-slate-900 hover:border-b-slate-800'}`} onClick={() => setActiveTab('buy')}>
         <p className="text-center text-sm font-semibold text-greenText bg-opacity-100">
             Buy
@@ -137,7 +137,7 @@ function BuyButton({ activeTab, setActiveTab }: { activeTab: string, setActiveTa
     </div>
 }
 
-function SellButton({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: any }) {
+function SellButton({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
     return <div className={`flex flex-col mb-[-2px] flex-1 cursor-pointer justify-center border-b-2 p-4 ${activeTab === 'sell' ? 'border-b-red-800 bg-red-800 bg-opacity-25' : 'border-b-slate-900 hover:border-b-slate-800'}`} onClick={() => setActiveTab('sell')}>
         <p className="text-center text-sm font-semibold text-red-600">
             Sell

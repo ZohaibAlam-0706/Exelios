@@ -12,7 +12,9 @@ export function TradeView({ market }: { market: string }) {
       let klineData: KLine[] = [];
       try {
         klineData = await getKlines(market, "1h", Math.floor((new Date().getTime() - 1000 * 60 * 60 * 24 * 7) / 1000), Math.floor(new Date().getTime() / 1000)); 
-      } catch (e) { }
+      } catch (e) { 
+        console.log("Error: ", e);
+      }
 
       if (chartRef) {
         if (chartManagerRef.current) {
@@ -20,14 +22,14 @@ export function TradeView({ market }: { market: string }) {
         }
 
         const chartManager = new ChartManager(
-          chartRef.current,
+          chartRef.current || "",
           [
             ...klineData?.map((x) => ({
               close: parseFloat(x.close),
               high: parseFloat(x.high),
               low: parseFloat(x.low),
               open: parseFloat(x.open),
-              timestamp: new Date(x.end), 
+              timestamp: Number(new Date(x.end)), 
             })),
           ].sort((x, y) => (x.timestamp < y.timestamp ? -1 : 1)) || [],
           {
@@ -35,7 +37,7 @@ export function TradeView({ market }: { market: string }) {
             color: "white",
           }
         );
-        //@ts-ignore
+        //@ts-expect-error: Typescript hi aisi hai
         chartManagerRef.current = chartManager;
       }
     };

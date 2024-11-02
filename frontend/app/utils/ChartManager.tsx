@@ -2,14 +2,24 @@ import {
     ColorType,
     createChart as createLightWeightChart,
     CrosshairMode,
+    IChartApi,
     ISeriesApi,
     UTCTimestamp,
   } from "lightweight-charts";
   
+  interface CandleData {
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    timestamp: number;
+  }
+  
+
   export class ChartManager {
     private candleSeries: ISeriesApi<"Candlestick">;
     private lastUpdateTime: number = 0;
-    private chart: any;
+    private chart: IChartApi;
     private currentBar: {
       open: number | null;
       high: number | null;
@@ -23,8 +33,8 @@ import {
     };
   
     constructor(
-      ref: any,
-      initialData: any[],
+      ref: HTMLDivElement| string,
+      initialData: CandleData[],
       layout: { background: string; color: string }
     ) {
       const chart = createLightWeightChart(ref, {
@@ -67,7 +77,7 @@ import {
         }))
       );
     }
-    public update(updatedPrice: any) {
+    public update(updatedPrice: {lastUpdateTime: number, close: number, low: number, high: number, open: number, time: number, newCandleInitiated: number}) {
       if (!this.lastUpdateTime) {
         this.lastUpdateTime = new Date().getTime();
       }

@@ -4,9 +4,11 @@ exports.RedisManager = void 0;
 const redis_1 = require("redis");
 class RedisManager {
     constructor() {
-        this.client = (0, redis_1.createClient)();
+        const redisHost = process.env.REDIS_HOST || 'localhost'; // Default to localhost for local development
+        const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+        this.client = (0, redis_1.createClient)({ url: `redis://${redisHost}:${redisPort}` });
         this.client.connect();
-        this.publisher = (0, redis_1.createClient)();
+        this.publisher = (0, redis_1.createClient)({ url: `redis://${redisHost}:${redisPort}` });
         this.publisher.connect();
     }
     static getInstance() {

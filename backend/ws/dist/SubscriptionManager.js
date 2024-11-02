@@ -15,7 +15,9 @@ class SubscriptionManager {
             console.log("Sending message: ", parsedMessage);
             (_a = this.reverseSubscriptions.get(channel)) === null || _a === void 0 ? void 0 : _a.forEach(s => { var _a; return (_a = UserManager_1.UserManager.getInstance().getUser(s)) === null || _a === void 0 ? void 0 : _a.emit(parsedMessage); });
         };
-        this.redisClient = (0, redis_1.createClient)();
+        const redisHost = process.env.REDIS_HOST || 'localhost'; // Default to localhost for local development
+        const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+        this.redisClient = (0, redis_1.createClient)({ url: `redis://${redisHost}:${redisPort}` });
         this.redisClient.connect();
     }
     static getInstance() {

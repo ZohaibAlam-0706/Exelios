@@ -4,6 +4,8 @@ exports.orderBook = void 0;
 const Engine_1 = require("./Engine");
 class orderBook {
     constructor(baseAsset, bids, asks, lastTradeId, currentPrice) {
+        this.bids = [];
+        this.asks = [];
         this.quoteAsset = Engine_1.BASE_CURRENCY;
         this.bids = bids;
         this.asks = asks;
@@ -48,7 +50,11 @@ class orderBook {
                     fills
                 };
             }
+            // console.log("ORDER Before: ", order);
+            // console.log("Asks Before: ", this.asks);
             this.asks.push(order);
+            // console.log("Asks After: ", this.asks);
+            // console.log("ORDER After: ", order);
             return {
                 executedQty,
                 fills
@@ -58,7 +64,7 @@ class orderBook {
     matchBid(order) {
         const fills = [];
         let executedQty = 0;
-        // this.asks.sort();
+        this.asks.sort();
         for (let i = 0; i < this.asks.length; i++) {
             if (this.asks[i].price <= order.price && executedQty < order.quantity) {
                 const filledQty = Math.min((order.quantity - executedQty), this.asks[i].quantity);
@@ -73,6 +79,7 @@ class orderBook {
                 });
             }
         }
+        console.log("ASKS: ", this.asks);
         for (let i = 0; i < this.asks.length; i++) {
             if (this.asks[i].filled === this.asks[i].quantity) {
                 this.asks.splice(i, 1);

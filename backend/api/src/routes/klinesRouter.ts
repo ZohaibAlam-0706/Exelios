@@ -5,10 +5,10 @@ dotenv.config();
 
 
 const pgClient = new Client({
-    user: 'your_user',
-    host: 'localhost',
+    user: process.env.DB_USER || "your_user",
+    host: process.env.DB_HOST || 'localhost',
     database: 'my_database',
-    password: 'your_password',
+    password: process.env.DB_PASS || 'your_password',
     port: 5432,  
 });
 pgClient.connect();

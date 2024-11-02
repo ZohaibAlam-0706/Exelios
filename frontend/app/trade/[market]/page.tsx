@@ -6,7 +6,7 @@ import { TradeView } from "@/app/components/TradeView";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
-export default function page(){
+export default function Page(){
     const { market } = useParams();
     const [currPrice, setCurrPrice] = useState(0.00);
     return (
@@ -18,7 +18,7 @@ export default function page(){
                         <TradeView market={market as string} />
                     </div>
                     <div className="flex flex-col w-[290px] overflow-hidden border-b-2 border-slate-900">
-                        <Depth market={market as string} currPrice={currPrice} setCurrPrice={setCurrPrice}/> 
+                        <Depth market={market as string} setCurrPrice={setCurrPrice}/> 
                     </div>
                 </div>
             </div>

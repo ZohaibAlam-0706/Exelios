@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { getDepth, getTicker } from "../../utils/httpClient";
 import { BidTable } from "./BidTable";
 import { AskTable } from "./AskTable";
@@ -7,7 +7,7 @@ import { SignalingManager } from "@/app/utils/SignalingManager";
 import { Trade } from "@/app/utils/types";
 import { TradesTable } from "./TradesTable";
 
-export function Depth({ market, currPrice, setCurrPrice }: { market: string, currPrice: any, setCurrPrice: any }) {
+export function Depth({ market, setCurrPrice }: { market: string, setCurrPrice: Dispatch<SetStateAction<number>> }) {
     const [bids, setBids] = useState<[string, string][]>();
     const [asks, setAsks] = useState<[string, string][]>();
     const [price, setPrice] = useState<string>();
@@ -25,23 +25,23 @@ export function Depth({ market, currPrice, setCurrPrice }: { market: string, cur
 
 
     useEffect(() => {
-        const updateData = (data: any) => {
+        const updateData = (data: {bids: [string, string][], asks: [string, string][]}) => {
             setBids((originalBids) => {
                 const bidsAfterUpdate = [...(originalBids || [])];
 
                 data.bids.forEach(([price, size]: [string, string]) => {
                     const index = bidsAfterUpdate.findIndex(bid => bid[0] === price);
                     if (index !== -1) {
-                        if (size === "0.00") {
+                        if (size === "0.00" || size === "0") {
                             bidsAfterUpdate.splice(index, 1);
                         } else {
                             bidsAfterUpdate[index][1] = size;
                         }
-                    } else if (size !== "0.00") {
+                    } else if (size !== "0.00" && size !== "0") {
                         bidsAfterUpdate.push([price, size]);
                     }
                 });
-                return bidsAfterUpdate; 
+                return bidsAfterUpdate.sort(); 
             });
 
             setAsks((originalAsks) => {
@@ -50,19 +50,19 @@ export function Depth({ market, currPrice, setCurrPrice }: { market: string, cur
                 data.asks.forEach(([price, size]: [string, string]) => {
                     const index = asksAfterUpdate.findIndex(ask => ask[0] === price);
                     if (index !== -1) {
-                        if (size === "0.00") {
+                        if (size === "0.00" || size === "0") {
                             asksAfterUpdate.splice(index, 1);
                         } else {
                             asksAfterUpdate[index][1] = size;
                         }
-                    } else if (size !== "0.00") {
+                    } else if (size !== "0.00" && size !== "0") {
                         asksAfterUpdate.push([price, size]);
                     }
                 });
-                return asksAfterUpdate; 
+                return asksAfterUpdate.sort(); 
             });
         };
-        const updateTrades = (data: any) => {
+        const updateTrades = (data: Trade) => {
             setTrades((originalTrades) => {
                 const newTrades = [];
                 newTrades.push(data);
@@ -72,8 +72,9 @@ export function Depth({ market, currPrice, setCurrPrice }: { market: string, cur
                 return newTrades;
             })
         }
-        
+        //@ts-expect-error: Dependency issue
         SignalingManager.getInstance().registerCallback("depth", updateData, `DEPTH-${market}`);
+        //@ts-expect-error: Dependency issue
         SignalingManager.getInstance().registerCallback("trade", updateTrades,`TRADES-${market}`);
 
         SignalingManager.getInstance().sendMessage({ "method": "SUBSCRIBE", "params": [`depth.${market}`], "id":6 });
@@ -88,7 +89,7 @@ export function Depth({ market, currPrice, setCurrPrice }: { market: string, cur
 
         getTicker(market).then(t => {
             setPrice(t.lastPrice)
-            setCurrPrice(t.lastPrice);
+            setCurrPrice(Number(t.lastPrice));
         });
 
         return () => {
@@ -97,7 +98,7 @@ export function Depth({ market, currPrice, setCurrPrice }: { market: string, cur
             SignalingManager.getInstance().sendMessage({"method":"UNSUBSCRIBE","params":["trade.SOL_USDC"],"id":8 });
             SignalingManager.getInstance().deRegisterCallback("trade", `TRADES-${market}`);
         };
-    }, [market]);
+    }, [market, setCurrPrice]);
 
     return (
         <div className="mx-3">
@@ -165,7 +166,7 @@ function TableHeader() {
     );
 }
 
-function BookButton({ activeTab, setActiveTab }: { activeTab: 'trades' | 'book'; setActiveTab: any }) {
+function BookButton({ activeTab, setActiveTab }: { activeTab: 'trades' | 'book'; setActiveTab: Dispatch<SetStateAction<"book" | "trades">> }) {
     return (
         <div className="flex flex-col cursor-pointer justify-center py-2" onClick={() => setActiveTab('book')}>
             <div className={`text-sm font-medium py-1 border-b-2 ${activeTab === 'book' ? "border-blue-500" : "border-transparent text-slate-400 hover:border-b-2 hover:border-white hover:text-white"}`}>
@@ -175,7 +176,7 @@ function BookButton({ activeTab, setActiveTab }: { activeTab: 'trades' | 'book';
     );
 }
 
-function TradesButton({ activeTab, setActiveTab }: { activeTab: 'trades' | 'book'; setActiveTab: any }) {
+function TradesButton({ activeTab, setActiveTab }: { activeTab: 'trades' | 'book'; setActiveTab: Dispatch<SetStateAction<"book" | "trades">> }) {
     return (
         <div className="flex flex-col cursor-pointer justify-center py-2" onClick={() => setActiveTab('trades')}>
             <div className={`text-sm font-medium py-1 border-b-2 ${activeTab === 'trades' ? "border-blue-500" : "border-transparent text-slate-400 hover:border-b-2 hover:border-white hover:text-white"}`}>

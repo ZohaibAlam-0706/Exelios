@@ -1,12 +1,27 @@
 import { Ticker, Trade } from "./types";
 
-export const BASE_URL = "ws://localhost:3002/"
+export const BASE_URL =  "ws://localhost:3002/"
+
+type Message = {
+    method: string;
+    params: string[];
+    id?: number;
+};
+  
+type CallbackObject = {
+    callback: (data: Partial<Ticker> | Partial<Trade> | { bids: [string, string][]; asks: [string, string][] }) => void;
+    id: string;
+};
+
+type Callbacks = {
+    [key: string]: CallbackObject[];
+};
 
 export class SignalingManager{
     private ws: WebSocket;
     private static instance: SignalingManager
-    private bufferedMessages: any[] = [];
-    private callbacks: any = {}
+    private bufferedMessages: Message[] = [];
+    private callbacks: Callbacks = {}
     private id: number;
     private initialized: boolean = false;
 
@@ -14,6 +29,7 @@ export class SignalingManager{
         this.ws = new WebSocket(BASE_URL);
         this.bufferedMessages = [];
         this.id = 1;
+        console.log(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
         this.init();
     }
 
@@ -36,7 +52,7 @@ export class SignalingManager{
             const message = JSON.parse(event.data);
             const type = message.data.e;
             if(this.callbacks[type]){
-                this.callbacks[type].forEach(({callback}: any) => {
+                this.callbacks[type].forEach(({callback}: CallbackObject) => {
                     if(type === "ticker"){
                         const newTicker: Partial<Ticker> = {
                             lastPrice: message.data.c,
@@ -72,7 +88,7 @@ export class SignalingManager{
             }
         }
     }
-    sendMessage(message: any){
+    sendMessage(message: Message){
         const messageToSend = {
             ...message,
             id: this.id++
@@ -84,14 +100,14 @@ export class SignalingManager{
         this.ws.send(JSON.stringify(messageToSend));
     }
 
-    async registerCallback(type: string, callback: any, id: string){
+    async registerCallback(type: string, callback: CallbackObject["callback"], id: string){
         this.callbacks[type] = this.callbacks[type] || [];
         this.callbacks[type].push({ callback, id });
     }
 
     async deRegisterCallback(type: string, id: string){
         if(this.callbacks[type]){
-            const index = this.callbacks[type].findIndex(({ callback }: any) => callback.id === id);
+            const index = this.callbacks[type].findIndex(( callback ) => callback.id === id);
             if(index !== -1){
                 this.callbacks[type].splice(index, 1);
             }

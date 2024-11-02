@@ -13,8 +13,10 @@ const redis_1 = require("redis");
 const Engine_1 = require("./trade/Engine");
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
+        const redisHost = process.env.REDIS_HOST || 'localhost'; // Default to localhost for local development
+        const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
         const engine = new Engine_1.Engine();
-        const redisClient = (0, redis_1.createClient)();
+        const redisClient = (0, redis_1.createClient)({ url: `redis://${redisHost}:${redisPort}` });
         yield redisClient.connect();
         console.log("connected to redis");
         while (true) {

@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  # Redis Service
+  redis:
+    image: redis:latest
+    container_name: redis
+    networks:
+      - app-network
+    ports:
+      - "6379:6379"
+
+  # TimescaleDB Service
+  timescaledb:
+    image: timescale/timescaledb:latest-pg12
+    container_name: timescaledb
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    environment:
+      POSTGRES_DB: my_database
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_password
+    volumes:
+      - timescale-data:/var/lib/postgresql/data
+      
+  # Frontend Service (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://api:3001
+        NEXT_PUBLIC_WEBSOCKET_URL: ws://websocket:3002
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:3001/api/v1
+      - NEXT_PUBLIC_WEBSOCKET_URL=ws://websocket:3002
+    depends_on:
+      - api
+      - websocket
+
+  # Express API Service
+  api:
+    build:
+      context: ./backend/api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_HOST=timescaledb
+      - DB_USER=your_user
+      - DB_PASS=your_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - engine
+      - redis
+      - timescaledb
+    networks:
+      - app-network
+
+  # Engine Service
+  engine:
+    build:
+      context: ./backend/engine
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+
+  # Database Processor Service
+  db_processor:
+    build:
+      context: ./backend/db
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=timescaledb
+      - DB_USER=your_user
+      - DB_PASS=your_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    networks:
+      - app-network
+    depends_on:
+      - timescaledb
+      - redis
+
+  # WebSocket Service
+  websocket:
+    build:
+      context: ./backend/ws
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    networks:
+      - app-network
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+
+  #Market Maker Service
+  market_maker:
+    build:
+      context: ./backend/marketMaker
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    environment:
+      - API_URL=http://api:3001
+    depends_on:
+      - api
+
+
+volumes:
+  timescale-data:
+
+networks:
+  app-network:
+    driver: bridge

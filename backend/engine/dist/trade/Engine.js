@@ -13,6 +13,7 @@ exports.BASE_CURRENCY = "USDC";
 class Engine {
     constructor() {
         this.balances = new Map();
+        this.orderBooks = [new orderBook_1.orderBook("SOL", [], [], 0, 0)];
         let snapshot = null;
         try {
             if (process.env.WITH_SNAPSHOT === "true") {
@@ -66,6 +67,7 @@ class Engine {
                         }
                     });
                 }
+                console.log("market: ", message.data.market);
                 break;
             case fromApi_1.CANCEL_ORDER:
                 try {
@@ -78,8 +80,9 @@ class Engine {
                         throw new Error("No OrderBook found");
                     }
                     const order = cancelOrder.asks.find(x => x.orderId === orderId) || cancelOrder.bids.find(x => x.orderId === orderId);
+                    console.log("Asks: ", cancelOrder.asks, "Bids: ", cancelOrder.bids);
                     if (!order) {
-                        console.log("No Order Found");
+                        console.log("No Order Found BHai", orderId);
                         throw new Error("No Order Found");
                     }
                     if (order.side == 'buy') {
@@ -95,7 +98,7 @@ class Engine {
                     }
                     else {
                         const price = cancelOrder.cancelAsk(order);
-                        const leftQuantity = order.quantity - order.filled;
+                        const leftQuantity = Number(order.quantity) - Number(order.filled);
                         //@ts-ignore
                         this.balances.get(order.userId)[quoteAsset].available += leftQuantity;
                         //@ts-ignore
@@ -121,6 +124,8 @@ class Engine {
             case fromApi_1.GET_OPEN_ORDERS:
                 try {
                     const openOrderBook = this.orderBooks.find(x => x.ticker() === message.data.market);
+                    console.log("openOrderBook: ", openOrderBook);
+                    console.log("message.data.userId: ", message.data.userId, "message.data.market: ", message.data.market);
                     if (!openOrderBook) {
                         throw new Error("No orderbook found");
                     }
@@ -168,11 +173,12 @@ class Engine {
         this.orderBooks.push(orderbook);
     }
     createOrder(market, price, quantity, side, userId) {
+        console.log("market: ", market);
         const orderbook = this.orderBooks.find(o => o.ticker() === market);
         const baseAsset = market.split("_")[0];
         const quoteAsset = market.split("_")[1];
         if (!orderbook) {
-            throw new Error("No orderbook found");
+            throw new Error("No orderbook found in this market");
         }
         this.checkAndLockFunds(baseAsset, quoteAsset, side, userId, quoteAsset, price, quantity);
         const order = {
@@ -184,6 +190,7 @@ class Engine {
             userId
         };
         const { fills, executedQty } = orderbook.addOrder(order);
+        console.log("fills", fills, "executedQty", executedQty);
         this.updateBalance(userId, baseAsset, quoteAsset, side, fills, executedQty);
         this.createDbTrades(fills, market, userId);
         this.updateDbOrders(order, executedQty, fills, market);
@@ -264,13 +271,16 @@ class Engine {
     publisWsDepthUpdates(fills, price, side, market) {
         const orderbook = this.orderBooks.find(o => o.ticker() === market);
         if (!orderbook) {
+            console.log(`No orderbook found for market: ${market}`);
             return;
         }
         const depth = orderbook.getDepth();
+        console.log("depth", depth);
         if (side === "buy") {
-            const updatedAsks = depth === null || depth === void 0 ? void 0 : depth.asks.filter(x => fills.map(f => f.price).includes(x[0].toString()));
-            const updatedBid = depth === null || depth === void 0 ? void 0 : depth.bids.find(x => x[0] === price);
+            const updatedAsks = depth === null || depth === void 0 ? void 0 : depth.asks.filter(x => fills.map(f => f.price).includes(x[0]));
+            const updatedBid = depth === null || depth === void 0 ? void 0 : depth.bids.find(x => Number(x[0]) === Number(price));
             console.log("publish ws depth updates");
+            console.log("updatedAsks: ", updatedAsks, "updatedBids: ", updatedBid);
             redisManager_1.RedisManager.getInstance().publishMessage(`depth.${market}`, {
                 stream: `depth.${market}`,
                 data: {
@@ -282,8 +292,9 @@ class Engine {
         }
         if (side === "sell") {
             const updatedBids = depth === null || depth === void 0 ? void 0 : depth.bids.filter(x => fills.map(f => f.price).includes(x[0].toString()));
-            const updatedAsk = depth === null || depth === void 0 ? void 0 : depth.asks.find(x => x[0] === price);
+            const updatedAsk = depth === null || depth === void 0 ? void 0 : depth.asks.find(x => Number(x[0]) === Number(price));
             console.log("publish ws depth updates");
+            console.log("updatedAsks: ", updatedAsk, "updatedBids: ", updatedBids);
             redisManager_1.RedisManager.getInstance().publishMessage(`depth.${market}`, {
                 stream: `depth.${market}`,
                 data: {

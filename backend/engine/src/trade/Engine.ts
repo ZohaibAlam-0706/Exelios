@@ -18,6 +18,7 @@ export class Engine{
     private balances: Map<string, userBalance> = new Map();
 
     constructor(){
+        this.orderBooks = [new orderBook("SOL", [], [], 0, 0)];
         let snapshot = null;
         try{
             if(process.env.WITH_SNAPSHOT === "true"){
@@ -71,6 +72,7 @@ export class Engine{
                         }
                     })
                 }
+                console.log("market: ", message.data.market);
                 break
             case CANCEL_ORDER:
                 try{
@@ -82,10 +84,10 @@ export class Engine{
                         console.log("No OrderBook found");
                         throw new Error("No OrderBook found");
                     }
-
                     const order = cancelOrder.asks.find(x => x.orderId === orderId) || cancelOrder.bids.find(x => x.orderId === orderId);
+                    console.log("Asks: ", cancelOrder.asks, "Bids: ", cancelOrder.bids);
                     if(!order){
-                        console.log("No Order Found")
+                        console.log("No Order Found BHai", orderId)
                         throw new Error("No Order Found")
                     }
                     if(order.side == 'buy'){
@@ -100,7 +102,7 @@ export class Engine{
                         }
                     }else{
                         const price = cancelOrder.cancelAsk(order)
-                        const leftQuantity = order.quantity - order.filled;
+                        const leftQuantity = Number(order.quantity) - Number(order.filled);
                         //@ts-ignore
                         this.balances.get(order.userId)[quoteAsset].available += leftQuantity;
                         //@ts-ignore
@@ -127,6 +129,8 @@ export class Engine{
             case GET_OPEN_ORDERS:
                 try{
                     const openOrderBook = this.orderBooks.find(x => x.ticker() === message.data.market);
+                    console.log("openOrderBook: ", openOrderBook);
+                    console.log("message.data.userId: ", message.data.userId, "message.data.market: ", message.data.market);
                     if(!openOrderBook){
                         throw new Error("No orderbook found");
                     }
@@ -174,13 +178,13 @@ export class Engine{
     }
 
     createOrder(market: string, price: string, quantity: string, side: "buy" | "sell", userId: string){
-
+        console.log("market: ", market);
         const orderbook = this.orderBooks.find(o => o.ticker() === market)
         const baseAsset = market.split("_")[0];
         const quoteAsset = market.split("_")[1];
 
         if (!orderbook) {
-            throw new Error("No orderbook found");
+            throw new Error("No orderbook found in this market");
         }
 
         this.checkAndLockFunds(baseAsset, quoteAsset, side, userId, quoteAsset, price, quantity);
@@ -195,6 +199,7 @@ export class Engine{
         }
         
         const { fills, executedQty } = orderbook.addOrder(order);
+        console.log("fills", fills, "executedQty", executedQty);
         this.updateBalance(userId, baseAsset, quoteAsset, side, fills, executedQty);
 
         this.createDbTrades(fills, market, userId);
@@ -283,13 +288,16 @@ export class Engine{
     publisWsDepthUpdates(fills: Fill[], price: string, side: "buy" | "sell", market: string) {
         const orderbook = this.orderBooks.find(o => o.ticker() === market);
         if (!orderbook) {
+            console.log(`No orderbook found for market: ${market}`);
             return;
         }
         const depth = orderbook.getDepth();
+        console.log("depth", depth);
         if (side === "buy") {
-            const updatedAsks = depth?.asks.filter(x => fills.map(f => f.price).includes(x[0].toString()));
-            const updatedBid = depth?.bids.find(x => x[0] === price);
+            const updatedAsks = depth?.asks.filter(x => fills.map(f => f.price).includes(x[0]));
+            const updatedBid = depth?.bids.find(x => Number(x[0]) === Number(price));
             console.log("publish ws depth updates")
+            console.log("updatedAsks: ",updatedAsks,"updatedBids: ", updatedBid);
             RedisManager.getInstance().publishMessage(`depth.${market}`, {
                 stream: `depth.${market}`,
                 data: {
@@ -301,8 +309,9 @@ export class Engine{
         }
         if (side === "sell") {
            const updatedBids = depth?.bids.filter(x => fills.map(f => f.price).includes(x[0].toString()));
-           const updatedAsk = depth?.asks.find(x => x[0] === price);
-           console.log("publish ws depth updates")
+           const updatedAsk = depth?.asks.find(x => Number(x[0]) === Number(price));
+           console.log("publish ws depth updates");
+           console.log("updatedAsks: ",updatedAsk,"updatedBids: ", updatedBids);
            RedisManager.getInstance().publishMessage(`depth.${market}`, {
                stream: `depth.${market}`,
                data: {

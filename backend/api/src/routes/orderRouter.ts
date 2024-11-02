@@ -1,4 +1,4 @@
-import { application, Router } from "express";
+import { Router } from "express";
 import { RedisManager } from "../redisManager";
 import { CANCEL_ORDER, CREATE_ORDER, GET_OPEN_ORDERS } from "../types";
 
@@ -33,7 +33,8 @@ orderRouter.delete('/', async (req, res) => {
 });
 
 orderRouter.get('/open', async (req, res) => {
-    const { userId, market } = req.body;
+    const userId = req.query.userId as string;
+    const market = req.query.market as string;
     const response = await RedisManager.getInstance().sendAndAwait({
         type: GET_OPEN_ORDERS,
         data: {

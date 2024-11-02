@@ -9,9 +9,11 @@ export class RedisManager{
     private static instance: RedisManager;
 
     private constructor(){
-        this.client = createClient();
+        const redisHost = process.env.REDIS_HOST || 'localhost'; // Default to localhost for local development
+        const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+        this.client = createClient({ url: `redis://${redisHost}:${redisPort}` });
         this.client.connect();
-        this.publisher = createClient();
+        this.publisher = createClient({ url: `redis://${redisHost}:${redisPort}` });
         this.publisher.connect();
     }
 

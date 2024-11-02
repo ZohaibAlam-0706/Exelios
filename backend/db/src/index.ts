@@ -6,7 +6,7 @@ dotenv.config();
 
 const pgClient = new Client({
     user: 'your_user',
-    host: 'localhost',
+    host: process.env.DB_HOST || 'localhost',
     database: 'my_database',
     password: 'your_password',
     port: 5432,
@@ -14,7 +14,9 @@ const pgClient = new Client({
 pgClient.connect();
 
 async function main() {
-    const redisClient = createClient();
+    const redisHost = process.env.REDIS_HOST || 'localhost'; // Default to localhost for local development
+    const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+    const redisClient = createClient({ url: `redis://${redisHost}:${redisPort}` });
     await redisClient.connect();
     console.log("connected to redis");
 

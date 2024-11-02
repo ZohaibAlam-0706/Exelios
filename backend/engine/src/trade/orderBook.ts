@@ -18,8 +18,8 @@ export interface Fill {
 }
 
 export class orderBook{
-    bids: Order[];
-    asks: Order[];
+    bids: Order[] = [];
+    asks: Order[] = [];
     baseAsset: string;
     quoteAsset: string = BASE_CURRENCY;
     lastTradeId: number;
@@ -74,7 +74,11 @@ export class orderBook{
                     fills
                 }
             }
+            // console.log("ORDER Before: ", order);
+            // console.log("Asks Before: ", this.asks);
             this.asks.push(order);
+            // console.log("Asks After: ", this.asks);
+            // console.log("ORDER After: ", order);
             return {
                 executedQty,
                 fills
@@ -101,7 +105,7 @@ export class orderBook{
                     markerOrderId: this.asks[i].orderId
                 });
             }
-        }
+        }console.log("ASKS: ", this.asks);
         for (let i = 0; i < this.asks.length; i++) {
             if (this.asks[i].filled === this.asks[i].quantity) {
                 this.asks.splice(i, 1);

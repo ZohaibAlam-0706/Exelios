@@ -18,7 +18,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const pgClient = new pg_1.Client({
     user: 'your_user',
-    host: 'localhost',
+    host: process.env.DB_HOST || 'localhost',
     database: 'my_database',
     password: 'your_password',
     port: 5432,
@@ -26,7 +26,9 @@ const pgClient = new pg_1.Client({
 pgClient.connect();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const redisClient = (0, redis_1.createClient)();
+        const redisHost = process.env.REDIS_HOST || 'localhost'; // Default to localhost for local development
+        const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+        const redisClient = (0, redis_1.createClient)({ url: `redis://${redisHost}:${redisPort}` });
         yield redisClient.connect();
         console.log("connected to redis");
         while (true) {

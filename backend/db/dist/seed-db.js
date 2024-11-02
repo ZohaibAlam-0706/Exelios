@@ -17,7 +17,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const client = new Client({
     user: 'your_user',
-    host: 'localhost',
+    host: process.env.DB_HOST || 'localhost',
     database: 'my_database',
     password: 'your_password',
     port: 5432,
