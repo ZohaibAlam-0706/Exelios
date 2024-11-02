@@ -1,6 +1,6 @@
 <h1 align="center" style="font-size: 40px;">EXELIOS</h1>
 
-<strong> An Exchange project with a scalable architecture </strong>
+<h3 align="center"> An Exchange project with a scalable architecture </h3>
 
 <h1 style="font-size: 30px; color: red">Architecture</h1>
 
