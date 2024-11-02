@@ -4,7 +4,8 @@
 
 <h1 style="font-size: 30px; color: red">Architecture</h1>
 
-![Exelios_Architecture](https://github.com/user-attachments/assets/c47b3e8c-7f5e-4c3d-9a1d-e7b1bd2ee060)
+![Exelios-Architecure](https://github.com/user-attachments/assets/6f5ed6a5-255d-4454-95b8-901fb5d532c1)
+
 
 # Table of Contents
 
