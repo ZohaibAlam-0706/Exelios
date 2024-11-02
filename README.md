@@ -1,6 +1,6 @@
 <h1 align="center" style="font-size: 40px;">EXELIOS</h1>
 
-<h3> An Exchange project with a scalable architecture </h3>
+<strong> An Exchange project with a scalable architecture </strong>
 
 <h1 style="font-size: 30px; color: red">Architecture</h1>
 
@@ -151,14 +151,14 @@ Access the Application in your browser
 http://localhost:3000
 ```
 ## TechStack
-    - This whole project is written in typescript
+- This whole project is written in typescript
 
 ### Frontend
-    - NextJs with npm as the package manager
+- NextJs with npm as the package manager
 
 ### Backend
-    - Express library
-    - pg library
-    - timescaledb as database
-    - ws library for websocket
-    - Redis for Queues ans PubSubs
+- Express library
+- pg library
+- timescaledb as database
+- ws library for websocket
+- Redis for Queues ans PubSubs
