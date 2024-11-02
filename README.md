@@ -18,6 +18,8 @@
     - [Temporary preliminary steps](#temporary-preliminary-steps)
   - [Usage](#usage)
   - [Techstack](#techstack)
+    - [Frontend](#frontend)
+    - [Backend](#backend)
 
 ## Why this Architecture?
 
