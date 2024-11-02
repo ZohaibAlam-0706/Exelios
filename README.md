@@ -23,12 +23,12 @@
 
 ## Why this Architecture?
 
-    - This is the most optimal way to implement an exchange because latency matters the most in an exchange
-    - We cannot do CRUD operations directly for any order to a database as it increases latency. So we do it via process memory.
-    - We cannot directly put crutial data of orders and user's money in just a server because servers are prone to crashes. Instead, we send request to process through a queue to an Engine which processes all the orders.
-    - After processing an order, the Engine publishes the result to two PubSubs. First one sends the result back to the api server to send the user the result of their order. The later one sends the result to websockets with which many users are connected and get the updated orderbook in realtime.
-    - Also the Engine pushes the results in a queue for a db processor service to perform the task of database calls to save the data.
-    - From time to time we also take snapshots of the engine states to ensure that if the engine goes down we can still re-create the same state as before. 
+- This is the most optimal way to implement an exchange because latency matters the most in an exchange
+- We cannot do CRUD operations directly for any order to a database as it increases latency. So we do it via process memory.
+- We cannot directly put crutial data of orders and user's money in just a server because servers are prone to crashes. Instead, we send request to process through a queue to an Engine which processes all the orders.
+- After processing an order, the Engine publishes the result to two PubSubs. First one sends the result back to the api server to send the user the result of their order. The later one sends the result to websockets with which many users are connected and get the updated orderbook in realtime.
+- Also the Engine pushes the results in a queue for a db processor service to perform the task of database calls to save the data.
+- From time to time we also take snapshots of the engine states to ensure that if the engine goes down we can still re-create the same state as before. 
 
 ## Running locally using Docker
 
